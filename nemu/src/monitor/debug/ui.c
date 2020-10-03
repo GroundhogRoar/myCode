@@ -7,6 +7,10 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+
+
+
+
 void cpu_exec(uint32_t);
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
@@ -46,6 +50,12 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
+	//{ "si", "Let the program execute n steps", cmd_si },
+  //{ "info", "Display the register status and the watchpoint information", cmd_info},
+  //{ "x", "Caculate the value of expression and display the content of the address", cmd_x},
+  //{ "p","Calculate an expression", cmd_p},
+  //{ "w", "Create a watchpoint", cmd_w},
+  //{ "d", "Delete a watchpoint", cmd_d},
 
 	/* TODO: Add more commands */
 
@@ -109,3 +119,6 @@ void ui_mainloop() {
 		if(i == NR_CMD) { printf("Unknown command '%s'\n", cmd); }
 	}
 }
+
+
+
