@@ -35,7 +35,6 @@ char* rl_gets() {
 static int cmd_help(char *args);
 
 
-
 static int cmd_c(char *args) {
 	cpu_exec(-1);
 	return 0;
@@ -51,7 +50,9 @@ static int cmd_si(char *args) {
       step = 1;
 	else 
     sscanf (args,"%d",&step);
-	cpu_exec(step);
+  int j;
+  for(j=0;j<step;j++)
+	  cpu_exec(1);
 	return 0;
 }
 
