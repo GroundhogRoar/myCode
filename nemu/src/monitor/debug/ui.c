@@ -31,6 +31,11 @@ char* rl_gets() {
 	return line_read;
 }
 
+
+static int cmd_help(char *args);
+
+
+
 static int cmd_c(char *args) {
 	cpu_exec(-1);
 	return 0;
@@ -40,7 +45,90 @@ static int cmd_q(char *args) {
 	return -1;
 }
 
-static int cmd_help(char *args);
+static int cmd_si(char *args) {
+	int step=0;
+	if (args == NULL)
+      step = 1;
+	else 
+    sscanf (args,"%d",&step);
+	cpu_exec(step);
+	return 0;
+}
+
+
+static int cmd_info(char *args) {
+  if(args){
+    if(args[0]=='r'){
+      printf("eax\t\t0x%08x\t\t%010d\n",cpu.eax,cpu.eax);
+      printf("ecx\t\t0x%08x\t\t%010d\n",cpu.ecx,cpu.ecx);
+      printf("edx\t\t0x%08x\t\t%010d\n",cpu.edx,cpu.edx);
+      printf("ebx\t\t0x%08x\t\t%010d\n",cpu.ebx,cpu.ebx);
+      printf("esp\t\t0x%08x\t\t0x%010d\n",cpu.esp,cpu.esp);
+      printf("ebp\t\t0x%08x\t\t0x%010d\n",cpu.ebp,cpu.ebp);
+      printf("esi\t\t0x%08x\t\t%010d\n",cpu.esi,cpu.esi);
+      printf("edi\t\t0x%08x\t\t%010d\n",cpu.edi,cpu.edi);
+      printf("eip\t\t0x%08x\t\t0x%08x\n",cpu.eip,cpu.eip);
+    }
+    else if(args[0]=='w'){
+      info_wp();
+    }
+    else{
+      cmd_help(args);
+    }
+  }
+  else 
+    cmd_help(args);
+  return 0;
+}
+
+
+static int cmd_p(char *args) {
+	uint32_t step ;
+	bool suc;
+	step = expr (args,&suc);
+	if (suc)
+		printf ("0x%x:\t%d\n",step,step);
+	else 
+    assert (0);
+	return 0;
+}
+
+
+static int cmd_x(char *args) {
+	uint32_t addr;
+  uint32_t n;
+  sscanf(args,"%d%x",&n,&addr);
+  int i;
+  for(i=0;i<n;i++){
+    printf("0x%08x\t",swaddr_read(addr+i*4,4));
+    if(!((i+1)%8))printf("\n");
+  }
+  printf("\n");
+  return 0;
+}
+
+
+
+static int cmd_w(char *args) {
+	WP *f;
+	bool suc;
+	f = new_wp();
+	printf ("Watchpoint %d: %s\n",f->NO,args);
+	f->val = expr (args,&suc);
+	strcpy (f->expr,args);
+	if (!suc)Assert (1,"wrong\n");
+	printf ("Value = %d\n",f->val);
+	return 0;
+}
+
+
+static int cmd_d(char *args) {
+	int step;
+	sscanf (args,"%d",&step);
+	delete_wp (step);
+	return 0;
+}
+
 
 static struct {
 	char *name;
@@ -50,15 +138,14 @@ static struct {
 	{ "help", "Display informations about all supported commands", cmd_help },
 	{ "c", "Continue the execution of the program", cmd_c },
 	{ "q", "Exit NEMU", cmd_q },
-	//{ "si", "Let the program execute n steps", cmd_si },
-  //{ "info", "Display the register status and the watchpoint information", cmd_info},
-  //{ "x", "Caculate the value of expression and display the content of the address", cmd_x},
-  //{ "p","Calculate an expression", cmd_p},
-  //{ "w", "Create a watchpoint", cmd_w},
-  //{ "d", "Delete a watchpoint", cmd_d},
+	{ "si", "Let the program execute n steps", cmd_si },
+  { "info", "Display the register status and the watchpoint information", cmd_info},
+  { "x", "Caculate the value of expression and display the content of the address", cmd_x},
+  { "p","Calculate an expression", cmd_p},
+  { "w", "Create a watchpoint", cmd_w},
+  { "d", "Delete a watchpoint", cmd_d},
 
 	/* TODO: Add more commands */
-
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))
@@ -85,6 +172,8 @@ static int cmd_help(char *args) {
 	}
 	return 0;
 }
+
+
 
 void ui_mainloop() {
 	while(1) {
