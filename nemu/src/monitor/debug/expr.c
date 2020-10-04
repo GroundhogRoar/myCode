@@ -103,7 +103,7 @@ static bool make_token(char *e) {
 						tokens [nr_token].str[substr_len-1]='\0';
 						nr_token ++;
 						break; 
-					default: panic("please implement me");
+					default: 
 						tokens[nr_token].type = rules[i].token_type;
 						tokens[nr_token].pri = rules[i].pri;
 						strncpy (tokens[nr_token].str,substr_start,substr_len);
